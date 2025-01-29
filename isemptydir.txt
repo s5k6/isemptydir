@@ -1,9 +1,10 @@
-Synopsis
+Test whether PATH (defaulting to `.`) is an empty directory.
 
-    isemptydir [-n] [PATH]     # test if PATH is an empty directory
-    isemptydir -h              # print this help
+    isemptydir [-n] [PATH]
+    isemptydir -h
 
-In the first form, the exit code is 0 iff PATH (defaulting to the
-current working directory) is verified to be an empty directory.  If
-content is found, the exit code is 1.  On error, the exit code is 2.
-With `-n`, do not follow symbolic links.
+The first form returns exit code 0 iff PATH is an empty directory,
+code 1 when content was found, and code 2 on error (argument is not a
+directory, does not exist, is inaccessible), reporting to stderr.
+
+With `-n`, do not follow (i.e., fail on) symbolic link.

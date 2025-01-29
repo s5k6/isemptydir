@@ -64,7 +64,6 @@ int main(int argc, char **argv) {
 
     ssize_t n;
     do {
-        //n = syscall(SYS_getdents, fd, buf, sizeof(buf));
         n = getdents64(fd, buf, sizeof(buf));
         if (n < 0)
             err(2, "getdents");
@@ -80,9 +79,8 @@ int main(int argc, char **argv) {
             if (strcmp(d->d_name, "..") == 0)
                 continue;
 
-            return 1; // found "real" entry, dirempty not empty.
+            return 1; // found "real" entry, directory not empty.
         }
-
     } while (n > 0);
 
     return 0;
