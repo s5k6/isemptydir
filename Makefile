@@ -1,11 +1,9 @@
 vpcc = gcc -std=c99 -g -Wall -Wextra -Wpedantic -Wbad-function-cast \
         -Wconversion -Wwrite-strings -Wstrict-prototypes -Wshadow
 
-.PHONY : dflt all test clean distclean
+.PHONY : all test clean distclean
 
-dflt : isemptydir
-
-all : test clean
+all : isemptydir
 
 clean :
 	rm -rf isemptydir.help testcases/
