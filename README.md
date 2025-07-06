@@ -27,4 +27,11 @@ reduced that to the rather small `isemptydir.c`, thus:
 Try `isemptydir -h` for help.
 
 
+Build
+-----
+
+    $ make        # just compile isemptydir
+    $ make all    # above, run tests, cleanup
+
+
 [1]: https://superuser.com/questions/352289/bash-scripting-test-for-empty-directory

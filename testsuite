@@ -1,0 +1,75 @@
+#!/bin/bash
+set -u -e -C;
+shopt -s nullglob;
+
+function err { echo $'\e[1;31m'"$@"$'\e[m' >&2; exit 1; }
+function warn { echo $'\e[1;35m'"$@"$'\e[m' >&2; }
+function info { echo $'\e[36m'"$@"$'\e[m'; }
+
+declare -i bad=0
+
+function check { # expect cmds
+    expect="${1}"; shift
+
+    echo "${expect}" "$@"
+
+    set +e
+    "$@" 2>/dev/null
+    ec="$?"
+    set -e
+
+    if ! test "${ec}" -eq "${expect}"; then
+        warn "Got ecit code ${ec} instead of ${expect}"
+        bad+=1
+    fi
+}
+
+
+bin="$(realpath ./isemptydir)"
+if ! test -x "${bin}"; then
+    err "Not found: ${bin}"
+fi
+
+if ! cd testcases 2>/dev/null; then
+    info 'createing testcases'
+    mkdir -p testcases
+    cd testcases
+
+    mkdir is_empty
+    mkdir has_file; touch has_file/foo
+    mkdir has_symlink; ln -s ../has_file/foo has_symlink/foo
+    mkdir has_dir; mkdir has_dir/foo
+    touch is_file
+    for i in *; do
+        ln -s "$i" "is_symlink_to_$i"
+    done
+fi
+
+info 'running tests'
+
+check 0 ${bin} is_empty
+check 0 env -C is_empty "${bin}"
+check 0 env -C is_empty "${bin}" .
+check 0 ${bin} is_symlink_to_is_empty
+
+for i in has_*; do
+    check 1 "${bin}" "${i}"
+    check 1 env -C "${i}" "${bin}"
+    check 1 env -C "${i}" "${bin}" .
+done
+
+check 1 ${bin} is_symlink_to_has_dir
+check 1 ${bin} is_symlink_to_has_file
+check 1 ${bin} is_symlink_to_has_symlink
+
+check 2 ${bin} is_file
+check 2 ${bin} -n is_symlink_to_has_dir
+check 2 ${bin} -n is_symlink_to_has_file
+check 2 ${bin} -n is_symlink_to_has_symlink
+check 2 ${bin} -n is_symlink_to_is_empty
+
+if test "${bad}" -eq 0; then
+    info 'All tests passed'
+else
+    err 'Some tests have failed'
+fi
